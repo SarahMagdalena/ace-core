@@ -39,20 +39,26 @@ module.exports = function ace(epubPath, options) {
   /* eslint-enable no-param-reassign */
 
   // Unzip the EPUB
-  var epub = new EPUB(epubPath);
+  const epub = new EPUB(epubPath);
   epub.extract()
   .then(() => epub.parse())
   // initialize the report
   .then(() => report.initialize(epub))
+  // Report the Nav Doc
+  .then(() => report.addEPUBNav(epub.navDoc))
   // Check each Content Doc
   .then(() => checker.check(epub.contentDocs))
   // Process the Results
-  //.then(results => Promise.all(results.map(report.processResult, options)))
-//  .then(() => report.createSummary(epubPath, options.tmpdir, options.outdir))
-  //.then(() => report.saveJson(options.outdir))
-  //.then(() => console.log('Done.'))
-  .then(() => report.saveJson(options.outdir))
-  .then(() => report.saveHtml(options.outdir))
+  .then(() => {
+    if (options.outdir === undefined) {
+      console.log(JSON.stringify(report.getJsonReport(), null, '  '));
+    } else {
+      report.copyData(options.outdir);
+      report.saveJson(options.outdir);
+      report.saveHtml(options.outdir);
+    }
+  })
+  .then(() => console.log('Done.'))
   .catch((err) => {
     console.error(`Unexpected error: ${err}`);
     process.exit(1);

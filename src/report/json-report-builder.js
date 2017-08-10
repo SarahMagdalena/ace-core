@@ -30,13 +30,16 @@ function withAssertedBy(obj, assertor) {
     obj["earl:assertedBy"] = assertor;
     return obj;
 }
-function withTestSubject (obj, url, title, identifier) {
+function withTestSubject (obj, url, title, identifier = '', metadata = null) {
     obj["earl:testSubject"] = {
       "url": url,
       "dct:title": title,
     };
     if (identifier.length > 0) {
       obj["earl:testSubject"]["dct:identifier"] = identifier;
+    }
+    if (metadata != undefined && metadata != null) {
+      obj["earl:testSubject"].metadata = metadata;
     }
     return obj;
 }
@@ -87,6 +90,27 @@ function withHelpUrl(obj, helpUrl) {
     obj["helpUrl"] = helpUrl;
     return obj;
 }
+function withHeadingsOutline(obj, outline) {
+  obj.outlines = obj.outlines || {};
+  obj.outlines.headings = outline;
+  return obj;
+}
+function withHTMLOutline(obj, outline) {
+  obj.outlines = obj.outlines || {};
+  obj.outlines.html = outline;
+  return obj;
+}
+function withEPUBOutline(obj, outline) {
+  obj.outlines = obj.outlines || {};
+  obj.outlines.toc = outline;
+  return obj;
+}
+function withImages(obj, images) {
+  obj.data = obj.data || {};
+  obj.data.images = images;
+  return obj;
+}
+
 
 // helper function
 function calculateResult(assertions) {
@@ -118,12 +142,25 @@ Report.prototype.withTitle = function(title) {
 Report.prototype.withDescription = function(description) {
     return withDescription(this, description);
 }
-Report.prototype.withTestSubject = function(url, title, identifier) {
-    return withTestSubject(this, url, title, identifier);
+Report.prototype.withTestSubject = function(url, title, identifier, metadata) {
+    return withTestSubject(this, url, title, identifier, metadata);
 }
 Report.prototype.withAssertion = function(assertions) {
     return withAssertion(this, assertions);
 }
+Report.prototype.withHeadingsOutline = function(outline) {
+    return withHeadingsOutline(this, outline);
+}
+Report.prototype.withHTMLOutline = function(outline) {
+    return withHTMLOutline(this, outline);
+}
+Report.prototype.withEPUBOutline = function(outline) {
+    return withEPUBOutline(this, outline);
+}
+Report.prototype.withImages = function(images) {
+    return withImages(this, images);
+}
+
 
 function Result() {
 }
@@ -142,7 +179,7 @@ function ContentDocAssertion() {
     withType(this, "earl:assertion");
 }
 ContentDocAssertion.prototype.withTestSubject = function(url, title) {
-    return withTestSubject(this, url, title, "");
+    return withTestSubject(this, url, title);
 }
 ContentDocAssertion.prototype.withAssertion = function(assertions) {
     return withAssertion(this, assertions);
